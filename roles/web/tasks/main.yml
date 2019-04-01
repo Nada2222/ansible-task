@@ -1,0 +1,25 @@
+   
+    - name: install apache
+      yum:
+        name: httpd
+        state: present
+ 
+    - name: start apache
+      service:
+        name: httpd
+        state: started
+
+    - name: configure apache as proxy
+      copy:
+        src: virtualhost.conf
+        dest: /etc/httpd/conf.d/proxy.conf
+
+    - name: fix SELinux issue
+      copy:
+        src: config
+        dest: /etc/selinux/config
+     
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted

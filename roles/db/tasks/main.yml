@@ -1,0 +1,55 @@
+- name: Add mongo repo
+  copy:
+   src: mongod.repo
+   dest: /etc/yum.repos.d/mongodb-org.repo
+
+- name: install mongod  packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - mongodb-org
+
+- name: reconfigure mongodb
+  copy:
+    src: mongod.conf
+    dest: /etc/mongod.conf
+
+- name: changing the conf file ownership
+  file:
+    path: /etc/mongod.conf
+    owner: mongod
+    group: mongod
+    mode: 0644
+
+- name: running mongod
+  service:
+    name: mongod
+    state: started
+    enabled: yes
+
+- name: confgure input iptables db-server
+  iptables:
+    chain: INPUT
+    source: 192.168.20.40
+    destination_port: 27017
+    protocol: tcp
+  
+- name: restarting mongod
+  service:
+    name: mongod
+    state: restarted
+    enabled: yes
+
+- name: configure outpur iptabes db-server
+  iptables:
+    chain: OUTPUT
+    destination: 192.168.20.40
+    source_port: 27017
+    protocol: tcp
+
+- name: restarting mongod
+  service:
+    name: mongod
+    state: restarted
+    enabled: yes

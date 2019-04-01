@@ -1,0 +1,55 @@
+- name: create project path
+  file:
+    path: /var/nodejs
+    state: directory
+
+- name: install nodejs and npm
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - nodejs
+    - npm
+
+- name: change directory
+  command: cd  /var/nodejs
+
+- name: install express
+  npm:
+    name: express
+    global: yes
+    state: present
+
+- name: install ejs
+  npm:
+    name: ejs
+    global: yes
+    state: present
+
+- name: install git
+  yum:
+    name: git
+    state: present
+
+
+- name: clone node js app
+  git:
+    repo: https://github.com/DinaGamalMahmoud/testrepo.git
+    dest: /var/nodejs
+    force: yes
+    version: master
+
+- name: copy file server.js
+  copy:
+    src: server.js
+    dest: /var/nodejs/server.js
+
+- name: Install npm dependencies
+  npm: path=/var/nodejs
+
+- name: install forever
+  npm: name=forever state=present global=yes
+
+
+- name: run with node
+  command: node /var/nodejs/server.js
